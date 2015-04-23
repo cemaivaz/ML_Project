@@ -64,7 +64,7 @@ order = unique(movementLabels);
 coef = length(movementLabels) / length(order);
 length(movementLabels);
 
-foldNo = 10;
+foldNo = 6;
 %The below built-in function helps us leverage the cross-validation method,
 %where the "k" (fold) value in this case is 10
 cv_ = cvpartition(movementLabels, 'k', foldNo);
