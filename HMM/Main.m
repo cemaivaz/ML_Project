@@ -85,7 +85,7 @@ coef = length(wordLabels) / length(order);
 length(wordLabels);
 %Below built-in function helps utilizing cross-validation method, it is
 %10-fold
-kfold = 3;
+kfold = 6;
 cv_ = cvpartition(wordLabels, 'k', kfold);
 
 

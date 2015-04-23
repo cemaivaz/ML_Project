@@ -63,8 +63,8 @@ for direc = find(ind)
         
         
         f_ = char(fileNames(u));
-%         feat_ = mirfeatures(fileMv);
-%         d = mirgetdata(feat_);
+        feat_ = mirfeatures(fileMv);
+        d = mirgetdata(feat_);
         
         
         
@@ -96,20 +96,20 @@ for direc = find(ind)
         
         
         %%
-%         vals_ = [d.spectral.centroid'];
-%         vals_ = [vals_ d.spectral.rolloff95'];
-%         vals_ = [vals_ [d.spectral.spectentropy']];
-%         
-%         vals_ = [vals_ d.timbre.zerocross'];
-%         vals_ = [vals_ repmat(d.timbre.lowenergy, size(vals_, 1), 1)];
-%      
-%         vals_ = [vals_ d.spectral.mfcc'];
-%         vals_ = [vals_ repmat(mean(d.rhythm.tempo), size(vals_, 1), 1) repmat(max(d.rhythm.tempo), size(vals_, 1), 1)];
-%         
-%         
-%         dlmwrite(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-4), '.ent12'))), vals_);
+        vals_ = [d.spectral.centroid'];
+        vals_ = [vals_ d.spectral.rolloff95'];
+        vals_ = [vals_ [d.spectral.spectentropy']];
+        
+        vals_ = [vals_ d.timbre.zerocross'];
+        vals_ = [vals_ repmat(d.timbre.lowenergy, size(vals_, 1), 1)];
+     
+        vals_ = [vals_ d.spectral.mfcc'];
+        vals_ = [vals_ repmat(mean(d.rhythm.tempo), size(vals_, 1), 1) repmat(max(d.rhythm.tempo), size(vals_, 1), 1)];
+        
+        
+        dlmwrite(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-4), '.ent12'))), vals_);
 
-        vals_ = dlmread(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-4), '.ent12'))), ',');
+%         vals_ = dlmread(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-4), '.ent12'))), ',');
 %         vals = dlmread(fileMv, ' ', 0, 0);
         valsAll = [valsAll; {vals_}];
         
