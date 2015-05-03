@@ -1,5 +1,12 @@
 %Cem Rifki Aydin 2013800054
 
+%Degisik feature set'lerini hesaba kat
+%libsvm'deki butun sub-function'lari dene
+%State sayisini degistir
+%Random vals. for center: The success rate changes
+%Data-set kcuuk old. icin..
+%SVM'de mean, var., max...
+
 %In this project, hidden Markov model (HMM) algorithm through the use of
 %expectation-mazimization process is benefited from for recognizing some
 %isolated words. After training some audio samples of words, test data 
