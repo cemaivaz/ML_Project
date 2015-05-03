@@ -107,7 +107,8 @@ for direc = find(ind)
 %         vals_ = [vals_ repmat(mean(d.rhythm.tempo), size(vals_, 1), 1) repmat(max(d.rhythm.tempo), size(vals_, 1), 1)];
         
         
-        
+        %spectrCentr, spectrRolloff, spectrEntropy, timbre.Zerocross,
+        %timbre.lowEnergy, spectr.mfcc(13), meanTempo, maxTempo
         f_ = char(fileNames(u));
         
         vals_ = dlmread(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-6), '.ent12'))), ',')' ;

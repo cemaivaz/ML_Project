@@ -68,7 +68,10 @@ for direc = find(ind)
         
         valz_ = dlmread(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-6), '.ent12'))), ',')' ;
         valz_(isnan(valz_)) = 0;
-        valz_ = valz_(1:5, :);
+        
+        %spectrCentr, spectrRolloff, spectrEntropy, timbre.Zerocross,
+        %timbre.lowEnergy, spectr.mfcc(13), meanTempo, maxTempo
+        valz_ = valz_(1:10, [1:5, 6:9, 19:20]);
         formantFreqAll =  [formantFreqAll {valz_}];
         wordLabels = [wordLabels {subDir_{direc}}];
     end

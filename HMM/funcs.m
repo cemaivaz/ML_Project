@@ -10,7 +10,7 @@ classdef funcs < handle
         m; %It stands for the mean values
         cov; %It stands for covariance matrix
         A; %It stands for state transition probabilities
-        StN = 5; %It stands for the number of states
+        StN = 12; %It stands for the number of states
         
     end
     
