@@ -71,7 +71,7 @@ for direc = find(ind)
         
         %spectrCentr, spectrRolloff, spectrEntropy, timbre.Zerocross,
         %timbre.lowEnergy, spectr.mfcc(13), meanTempo, maxTempo
-        valz_ = valz_(1:10, [1:5, 6:9, 19:20]);
+        valz_ = valz_(:, [1:5, 6:9, 19:20]);
         formantFreqAll =  [formantFreqAll {valz_}];
         wordLabels = [wordLabels {subDir_{direc}}];
     end
@@ -86,9 +86,9 @@ order = unique(wordLabels);
 coef = length(wordLabels) / length(order);
 length(wordLabels);
 %Below built-in function helps utilizing cross-validation method, it is
-%6-fold
+%10-fold
 kfold = 6;
-
+size(wordLabels)
 cv_ = cvpartition(wordLabels, 'k', kfold);
 
 

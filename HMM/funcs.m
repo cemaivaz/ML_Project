@@ -10,7 +10,7 @@ classdef funcs < handle
         m; %It stands for the mean values
         cov; %It stands for covariance matrix
         A; %It stands for state transition probabilities
-        StN = 12; %It stands for the number of states
+        StN = 10; %It stands for the number of states
         
     end
     
@@ -28,7 +28,10 @@ classdef funcs < handle
             gauss = ones(self.StN, length(samples));
             i = 1;
             %For each state, a different distribution is to be created
-            samples;
+%             size(samples)
+%             size(self.m)
+%             size(self.cov)
+%             fprintf('____');
             
             while i <= self.StN
                 gauss(i, :) = mvnpdf(samples', self.m(:, i)', self.cov(:, :, i));

@@ -118,7 +118,9 @@ for direc = find(ind)
 %         vals_ = dlmread(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-4), '.ent12'))), ',');
 %         vals = dlmread(fileMv, ' ', 0, 0);
         vals_(isnan(vals_)) = 0;
-        vals_ = vals_(1:5, :);
+%         vals_ = vals_(1:5, :);
+        vals_ = vals_(:, :);%[1:5, 6:9, 19:20]);
+%         vals_ = vals_(1:5, [1:5, 6:9, 19:20]);
         valsAll = [valsAll; {vals_}];
         
         movementLabels = [movementLabels; {subDir_{direc}}];
