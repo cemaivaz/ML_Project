@@ -3,7 +3,7 @@ classdef HMM_ < handle
     
     %HMM has those properties as follows:
     properties
-        nm = ''; %It stands for the name (label) of a movement
+        nm = ''; %It stands for the name (label) of a genre
         pri; %It stands for the prior probabilities of states
         m; %It stands for the mean values
         cov; %It stands for the covariance matrix
@@ -69,7 +69,7 @@ classdef HMM_ < handle
                     alpha(:, i) = self.pri .* gauss(:, i);
                 end
                 %Likelihood calculated below determines how similar
-                %two movement data are to one another
+                %two genre data are to one another
                 likelihoodLog = likelihoodLog + log(sum(alpha(:, i)));
                 alpha(:, i) = alpha(:, i) ./ sum(alpha(:, i));
                 i = i + 1;
@@ -77,7 +77,7 @@ classdef HMM_ < handle
             
             
         end
-        %The below function calculates the similarity between two movement
+        %The below function calculates the similarity between two genre
         %data, be it pertaining to the same, or different action group
         function likelihoodLog = likelihoodLog(self, samples)
             likelihoodLog = forw(self, samples, self.mvndistr(samples));

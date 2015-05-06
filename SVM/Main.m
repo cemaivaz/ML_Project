@@ -1,22 +1,30 @@
-%"WEARABLE COMPUTING" PROJECT - Team 11, 13/12/2014
-%DEVELOPING EXOSKELETON SYSTEM FOR THE MOBILITY-IMPAIRED
-%Ali Ozcan, Bugra Oral, Erdem Emekligil, Onur Satici, Cem Rifki Aydin
+%Machine Listening Project
 
-%PART 3 - Implementation of SVM (radial basis)
+%MUSICAL GENRE CATEGORIZATION
+%SVM Main
 
-%Below is the source code written for the exoskeleton system - recognition of different
-%arm audio.
+%Cem Rifki Aydin    2013800054
+%06.05.2015
+
+%In this file, the features extracted thanks to the use of MIRToolBox are
+%utilized as continuous inputs for HMM algorithm
 
 
-clear
+clear all;
+close all;
 clc
 format long
 make 
 mex -setup
 
-%We scan the files in the 'audio' folder
-subDir = dir('audio');
+%We scan the files in the 'data' folder, including the features of the
+%songs of different genre
+subDir = dir('data');
 
+%However, if one wants to extract the features manually, the below comments
+%should be uncommented, and the directory names should be corrected in
+%accordance with one's directory full path where the toolbox package
+%resides
 addpath('C:\Program Files\MATLAB\R2014a\toolbox\somtoolbox')
 addpath('C:\Program Files\MATLAB\R2014a\toolbox\netlab')
 addpath('C:\Program Files\MATLAB\R2014a\toolbox\MIRToolboxDemos')
@@ -30,14 +38,14 @@ ind = ~ismember(subDir_, {'.', '..'});
 
 
 testDataAll = [];
-movementLabels = [];
+genreLabels = [];
 
 
 valsAll = [];
 
-%All the files in the subdirectories of the folder 'audio' are scanned
+%All the files in the subdirectories of the folder 'data' are scanned
 for direc = find(ind)
-    newDir = fullfile('audio', subDir_{direc});
+    newDir = fullfile('data', subDir_{direc});
     allFiles = dir(newDir);
     
     x = newDir;
@@ -48,7 +56,7 @@ for direc = find(ind)
         
         if strcmp(file.name, '.') == 0 && strcmp(file.name, '..') == 0
             fileNames = [fileNames; {file.name}];
-            fileN = [fileN; char(strcat(strcat('audio\', strcat(subDir_{direc}, '\')), char(file.name)))];
+            fileN = [fileN; char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), char(file.name)))];
         end
         
     end
@@ -63,8 +71,8 @@ for direc = find(ind)
         
         
         f_ = char(fileNames(u));
-        feat_ = mirfeatures(fileMv);
-        d = mirgetdata(feat_);
+%         feat_ = mirfeatures(fileMv);
+%         d = mirgetdata(feat_);
         
         
         
@@ -96,48 +104,63 @@ for direc = find(ind)
         
         
         %%
-        vals_ = [d.spectral.centroid'];
-        vals_ = [vals_ d.spectral.rolloff95'];
-        vals_ = [vals_ [d.spectral.spectentropy']];
+
+%         vals_ = [d.spectral.centroid'];
+%         vals_ = [vals_ d.spectral.rolloff95'];
+%         vals_ = [vals_ [d.spectral.spectentropy']];
+%         
+%         vals_ = [vals_ d.timbre.zerocross'];
+%         vals_ = [vals_ repmat(d.timbre.lowenergy, size(vals_, 1), 1)];
+%      
+%         vals_ = [vals_ d.spectral.mfcc'];
+%         vals_ = [vals_ repmat(mean(d.rhythm.tempo), size(vals_, 1), 1) repmat(max(d.rhythm.tempo), size(vals_, 1), 1)];
         
-        vals_ = [vals_ d.timbre.zerocross'];
-        vals_ = [vals_ repmat(d.timbre.lowenergy, size(vals_, 1), 1)];
-     
-        vals_ = [vals_ d.spectral.mfcc'];
-        vals_ = [vals_ repmat(mean(d.rhythm.tempo), size(vals_, 1), 1) repmat(max(d.rhythm.tempo), size(vals_, 1), 1)];
         
+        %spectrCentr, spectrRolloff, spectrEntropy, timbre.Zerocross,
+        %timbre.lowEnergy, spectr.mfcc(13), meanTempo, maxTempo
+        f_ = char(fileNames(u));
         
-        dlmwrite(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-4), '.ent12'))), vals_);
+        vals_ = dlmread(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-6), '.ent12'))), ',')' ;
+        
+        %dlmwrite(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-4), '.ent12'))), vals_);
 
 %         vals_ = dlmread(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-4), '.ent12'))), ',');
 %         vals = dlmread(fileMv, ' ', 0, 0);
+        vals_(isnan(vals_)) = 0;
+%         vals_ = vals_(1:5, :);
+        vals_ = vals_(:, :);%[1:5, 6:9, 19:20]);
+        
+        %spectrCentr, spectrRolloff, spectrEntropy, timbre.Zerocross,
+        %timbre.lowEnergy, spectr.mfcc(13), meanTempo, maxTempo
+
+        %         vals_ = vals_(1:5, [1:5, 6:9, 19:20]);
         valsAll = [valsAll; {vals_}];
         
-        movementLabels = [movementLabels; {subDir_{direc}}];
+        genreLabels = [genreLabels; {subDir_{direc}}];
     end
 end
 
 
 
 
-%Unique movement labels are determined
-order = unique(movementLabels);
-coef = length(movementLabels) / length(order);
-length(movementLabels);
+%Unique genre labels are determined
+order = unique(genreLabels);
+coef = length(genreLabels) / length(order);
+length(genreLabels);
 
-foldNo = 3;
+foldNo = 6;
 %The below built-in function helps us leverage the cross-validation method,
 %where the "k" (fold) value in this case is 10
-cv_ = cvpartition(movementLabels, 'k', foldNo);
+cv_ = cvpartition(genreLabels, 'k', foldNo);
 
 
 
-cnterAll = length(movementLabels);
+cnterAll = length(genreLabels);
 cnterSucc = 0;
 
 avgSucc = 0;
 
-orderInt = 1:length(unique(movementLabels));
+orderInt = 1:length(unique(genreLabels));
 
 avgSucc = 0;
 
@@ -158,33 +181,36 @@ for j = 1:cv_.NumTestSets
     test_ = valsAll(trDat == 0);
     
     %Features to be extracted are determined as the mean, maximum, and
-    %variance values of the training data of a whole movement class
+    %variance values of the training data of a whole genre class
     featuresTrAll = [];
     featuresTestAll = [];
     
     featuresLabTrAll = [];
     
     %The below iteration is performed as to divide the data into the test
-    %and training ones, whereby one tenth of the files in a movement folder
+    %and training ones, whereby one tenth of the files in a genre folder
     %is chosen as the test data, being repeated 10 times.
-    for k = 1:foldNo - 1:length(movementLabels) - length(test_)
+    for k = 1:foldNo - 1:length(genreLabels) - length(test_)
         
         tra_ = [];
         for p = k:k + foldNo - 2
-            tra_ = [tra_; mod_{p}];
+            tmpMod = mod_{p}';
+            tra_ = [tra_; max(tmpMod) mean(tmpMod) var(tmpMod)];
+            featuresLabTrAll = [featuresLabTrAll; orderInt(testIter)]
         end
         
-        featuresTr = [mean(tra_(:, :)) var(tra_(:, :)) max(tra_(:, :)) min(tra_)];
+        featuresTr = [tra_];
         
         %
         
         featuresTrAll = [featuresTrAll; {featuresTr}];
         
-        featuresLabTrAll = [featuresLabTrAll; orderInt(testIter)];
+        ;
         
         testT = test_{testIter};
-        testT = testT(:, :);
-        featuresTest = [mean(testT) var(testT) max(testT) min(testT)];
+
+        testT = testT';
+        featuresTest = [ max(testT) mean(testT) var(testT)];
         
 
         featuresTestAll = [featuresTestAll; {featuresTest}];
@@ -208,7 +234,7 @@ for j = 1:cv_.NumTestSets
     
     train_label = featuresLabTrAll;
     train_data = cell2mat(featuresTrAll);
-    
+
     
     %The below built-in function provided by the libsvm library trains
     %a model through the data collected by the application "Accelerometere Monitor".
@@ -226,16 +252,16 @@ for j = 1:cv_.NumTestSets
         
         avgSucc = avgSucc + accuracy_L(1);
         
-        testWord = order(w);
-        testWord = testWord{1};
-        predictedWord = order(predict_label_L);
-        predictedWord = predictedWord{1};
+        testGenre = order(w);
+        testGenre = testGenre{1};
+        predictedGenre = order(predict_label_L);
+        predictedGenre = predictedGenre{1};
         if accuracy_L(1) ~= 100
             
-            RESULTS{resind} = ['FALSE - Test movement: ', testWord, ', Predicted movement: ', predictedWord];
+            RESULTS{resind} = ['FALSE - Test genre: ', testGenre, ', Predicted genre: ', predictedGenre];
         else
             
-            RESULTS{resind} = ['TRUE - Test movement: ', testWord, ', Predicted movement: ', predictedWord];
+            RESULTS{resind} = ['TRUE - Test genre: ', testGenre, ', Predicted genre: ', predictedGenre];
         end
         resind = resind + 1;
     end

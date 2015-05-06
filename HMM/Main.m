@@ -1,23 +1,32 @@
 %Machine Listening Project
-%Cem Rifki Aydin 2013800054
 
+%MUSICAL GENRE CATEGORIZATION
+%HMM Main
+
+%Cem Rifki Aydin    2013800054
+%06.05.2015
 
 %In this file, the features extracted thanks to the use of MIRToolBox are
-%used as continuous inputs for HMM algorithm
+%utilized as continuous inputs for HMM algorithm
 
 
+clear all;
+close all;
 clc
-clear
+
+
+%% WARNING:
+% In this file, the features already extracted through the use of
+% MIRToolBox are used. Such an approach is followed due to that the audio
+% files occupy a lot of space.
 
 
 
-
-%% WARNING!
-%
 %%
 
 
-%We read the files in the 'data' folder
+%We read the files in the 'data' folder, containing the features of the
+%song excerpts of different genres
 
 subDir = dir('data');
 
@@ -37,7 +46,7 @@ genreLabels = [];
 
 features_ = [];
 
-%All files in the subdirectories of the directory 'data' are scanned
+%All the files in the subdirectories of the directory 'data' are scanned
 for direc = find(ind)
     newDir = fullfile('data', subDir_{direc});
     allFiles = dir(newDir);
@@ -67,15 +76,23 @@ for direc = find(ind)
         
         f_ = char(fileNames(u));
         
-        valz_ = dlmread(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-6), '.ent12'))), ',')' ;
-        valz_(isnan(valz_)) = 0;
+        songFeats_ = dlmread(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-6), '.ent12'))), ',')' ;
+        %Since NaN (not a number) values can be problematic, these values
+        %are converted to 0 below
+        songFeats_(isnan(songFeats_)) = 0;
         
+        %All features:
         %spectrCentr, spectrRolloff, spectrEntropy, timbre.Zerocross,
         %timbre.lowEnergy, spectr.mfcc(13), meanTempo, maxTempo
         
-        valz_ = valz_(1:11, [1:5, 6:9, 19:20]);
+        %Below, some spectral values, mean and maximal tempo values are
+        %taken into account
+        %Below is the value that can be between 1 and 13, specifying the
+        %number of MFCC coefficients that are taken account of
+        mfccCnt = 3;
+        songFeats_ = songFeats_(1:11, [1:5, 6:6 + mfccCnt, 19:20]);
        
-        features_ =  [features_ {valz_}];
+        features_ =  [features_ {songFeats_}];
         genreLabels = [genreLabels {subDir_{direc}}];
     end
     
@@ -90,7 +107,7 @@ coef = length(genreLabels) / length(order);
 length(genreLabels);
 %The below variable stores the information for the number of sets to be
 %used in cross-validation
-kfold = 6;
+kfold = length(allData);
 
 cv_ = cvpartition(genreLabels, 'k', kfold);
 
@@ -115,8 +132,8 @@ for j = 1:cv_.NumTestSets
        
     test_ = features_(trDat == 0);
         
-    %Below iteration assumes that each one file of ten for each different
-    %label is chosen as test sample while others are training data
+    %The below iteration assumes that each file of six for each different
+    %genre label is chosen as the test sample while others as training data
     for k = 1:kfold - 1:length(genreLabels) - length(test_)
         
         tra_ = [];
@@ -146,12 +163,12 @@ for j = 1:cv_.NumTestSets
             genreLike_ = genre.likelihoodLog(genreTest_);
         
              
-            %Below comment should be uncommented to see the log-likelihoods
-            %fprintf('Word %s compared with %s, likelihood: %0.2f\n', char(order(cntTr)), char(genre.nm), genreLike_);
+            %The below comment should be uncommented to see the log-likelihoods
+            %fprintf('Genre %s compared with %s, likelihood: %0.2f\n', char(order(cntTr)), char(genre.nm), genreLike_);
             
             
-            %Below we try finding the maximum likelihood value. Whichever
-            %training genre has this value, its label is determined as the
+            %Below, we try finding the maximum likelihood value. Whichever
+            %training genre has this value, its label is chosen as the
             %predicted genre
             if genreLike_ > likelihoodVal
                 likelihoodVal = genreLike_;
@@ -159,8 +176,8 @@ for j = 1:cv_.NumTestSets
             end
         end
         
-        %If the label of both of the test genre and the predicted are same,
-        %it contributes to the success rate
+        %If the label of both of the test genre and the predicted are the same,
+        %it increases the success rate
         if  strcmp(order(cntTr), predictedGenre)
             cnterSucc = cnterSucc + 1;
             fprintf('True - Test genre: %s, Predicted genre: %s\n', char(order(cntTr)), char(predictedGenre));
