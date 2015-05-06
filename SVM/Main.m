@@ -22,7 +22,7 @@ mex -setup
 subDir = dir('data');
 
 %However, if one wants to extract the features through the use of
-%MIRToolBox, the below comments starting with addpath
+%MIRToolBox, the below comments starting with "addpath"
 %should be uncommented, and the directory names should be corrected in
 %accordance with one's directory full path where the toolbox package
 %resides
@@ -92,7 +92,7 @@ for direc = find(ind)
 %      
 %         vals_ = [vals_ d.spectral.mfcc'];
 %         vals_ = [vals_ repmat(mean(d.rhythm.tempo), size(vals_, 1), 1) repmat(max(d.rhythm.tempo), size(vals_, 1), 1)];
-%         dlmwrite(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-4), '.ent12'))), vals_);
+%         dlmwrite(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-6), '.ent12'))), vals_);
         %%
         
         %Features:
@@ -179,7 +179,7 @@ for j = 1:cv_.NumTestSets
             %maximum, and variance of the features selected above are
             %calculated
             tra_ = [tra_; max(tmpMod) mean(tmpMod) var(tmpMod)];
-            featuresLabTrAll = [featuresLabTrAll; orderInt(testIter)]
+            featuresLabTrAll = [featuresLabTrAll; orderInt(testIter)];
         end
         
         featuresTr = [tra_];

@@ -30,6 +30,18 @@ clc
 
 subDir = dir('data');
 
+
+%However, if one wants to extract the features through the use of
+%MIRToolBox, the below comments starting with "addpath"
+%should be uncommented, and the directory names should be corrected in
+%accordance with one's directory full path where the toolbox package
+%resides
+% addpath('C:\Program Files\MATLAB\R2014a\toolbox\somtoolbox')
+% addpath('C:\Program Files\MATLAB\R2014a\toolbox\netlab')
+% addpath('C:\Program Files\MATLAB\R2014a\toolbox\MIRToolboxDemos')
+% addpath('C:\Program Files\MATLAB\R2014a\toolbox\MIRToolbox')
+% addpath('C:\Program Files\MATLAB\R2014a\toolbox\AuditoryToolbox')
+
 subDirInd = [subDir.isdir];
 
 subDir_ = {subDir(subDirInd).name};
@@ -75,7 +87,27 @@ for direc = find(ind)
         
         
         f_ = char(fileNames(u));
-        
+        %% If one wants to extract the features through the use of MIRToolBox, the
+%comment section below has thoroughly to be uncommented
+%         tmpFile_ = fileMv;
+%         tmpFile_ = strrep(tmpFile_, 'data\', 'audio\');
+%         tmpFile_ = strrep(tmpFile_, '.ent12', '.wav');
+%         
+%         feat_ = mirfeatures(tmpFile_);
+%         d = mirgetdata(feat_);
+%         
+%      
+%         vals_ = [d.spectral.centroid'];
+%         vals_ = [vals_ d.spectral.rolloff95'];
+%         vals_ = [vals_ [d.spectral.spectentropy']];
+%         
+%         vals_ = [vals_ d.timbre.zerocross'];
+%         vals_ = [vals_ repmat(d.timbre.lowenergy, size(vals_, 1), 1)];
+%      
+%         vals_ = [vals_ d.spectral.mfcc'];
+%         vals_ = [vals_ repmat(mean(d.rhythm.tempo), size(vals_, 1), 1) repmat(max(d.rhythm.tempo), size(vals_, 1), 1)];
+%         dlmwrite(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-6), '.ent12'))), vals_);
+        %%
         songFeats_ = dlmread(char(strcat(strcat('data\', strcat(subDir_{direc}, '\')), strcat(f_(1:end-6), '.ent12'))), ',')' ;
         %Since NaN (not a number) values can be problematic, these values
         %are converted to 0 below
