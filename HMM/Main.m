@@ -1,22 +1,10 @@
+%Machine Listening Project
 %Cem Rifki Aydin 2013800054
 
-%Degisik feature set'lerini hesaba kat
-%libsvm'deki butun sub-function'lari dene
-%State sayisini degistir
-%Random vals. for center: The success rate changes
-%Data-set kcuuk old. icin..
-%SVM'de mean, var., max...
 
-%In this project, hidden Markov model (HMM) algorithm through the use of
-%expectation-mazimization process is benefited from for recognizing some
-%isolated words. After training some audio samples of words, test data 
-%spoken by different users are fed into models built through HMM, and
-%success rate is seen to be high.
+%In this file, the features extracted thanks to the use of MIRToolBox are
+%used as continuous inputs for HMM algorithm
 
-%Below, feature extraction process is benefited from. Features are
-%considered formants of the data samples in this case.
-
-% Read the data back into MATLAB, and listen to audio. 
 
 clc
 clear
@@ -24,7 +12,13 @@ clear
 
 
 
+%% WARNING!
+%
+%%
+
+
 %We read the files in the 'data' folder
+
 subDir = dir('data');
 
 subDirInd = [subDir.isdir];
@@ -38,10 +32,10 @@ testDataAll = [];
 cntFile = 1;
 
 
-wordLabels = [];
+genreLabels = [];
 
 
-formantFreqAll = [];
+features_ = [];
 
 %All files in the subdirectories of the directory 'data' are scanned
 for direc = find(ind)
@@ -78,9 +72,11 @@ for direc = find(ind)
         
         %spectrCentr, spectrRolloff, spectrEntropy, timbre.Zerocross,
         %timbre.lowEnergy, spectr.mfcc(13), meanTempo, maxTempo
-        valz_ = valz_(1:10, [1:5, 6:9, 19:20]);
-        formantFreqAll =  [formantFreqAll {valz_}];
-        wordLabels = [wordLabels {subDir_{direc}}];
+        
+        valz_ = valz_(1:11, [1:5, 6:9, 19:20]);
+       
+        features_ =  [features_ {valz_}];
+        genreLabels = [genreLabels {subDir_{direc}}];
     end
     
     
@@ -88,19 +84,19 @@ end
 
 
 
-%Unique word labels are determined
-order = unique(wordLabels);
-coef = length(wordLabels) / length(order);
-length(wordLabels);
-%Below built-in function helps utilizing cross-validation method, it is
-%6-fold
+%Unique genre labels are determined
+order = unique(genreLabels);
+coef = length(genreLabels) / length(order);
+length(genreLabels);
+%The below variable stores the information for the number of sets to be
+%used in cross-validation
 kfold = 6;
 
-cv_ = cvpartition(wordLabels, 'k', kfold);
+cv_ = cvpartition(genreLabels, 'k', kfold);
 
 
 
-cnterAll = length(wordLabels);
+cnterAll = length(genreLabels);
 cnterSucc = 0;
 
 %We below iterate through the sets created through cross-validation
@@ -110,18 +106,18 @@ for j = 1:cv_.NumTestSets
     testDat = cv_.test(j);
     orderNo = 1;
     
-    words_ = [];
-    wordsTest_ = [];
+    genres_ = [];
+    genresTest_ = [];
     iter = 1;
     testIter = 1;
     
-    mod_ = formantFreqAll(trDat == 1);
+    mod_ = features_(trDat == 1);
        
-    test_ = formantFreqAll(trDat == 0);
+    test_ = features_(trDat == 0);
         
     %Below iteration assumes that each one file of ten for each different
     %label is chosen as test sample while others are training data
-    for k = 1:kfold - 1:length(wordLabels) - length(test_)
+    for k = 1:kfold - 1:length(genreLabels) - length(test_)
         
         tra_ = [];
         for p = k:k + kfold - 2
@@ -129,47 +125,47 @@ for j = 1:cv_.NumTestSets
             tra_ = [tra_ mod_{p}];
         end
         
-        new_funcs = funcs(order(orderNo));
+        new_funcs = HMM_(order(orderNo));
         new_funcs.process(tra_);
         orderNo = orderNo + 1;
-        words_ = [words_, new_funcs];
-        wordsTest_ = [wordsTest_ {test_{testIter}}];
+        genres_ = [genres_, new_funcs];
+        genresTest_ = [genresTest_ {test_{testIter}}];
         testIter = testIter + 1;
     end
     
     cntTr = 1;
     
-    for wordTest = wordsTest_
+    for genreTest = genresTest_
         likelihoodVal = -Inf;
 
-        predictedWord = '';
+        predictedGenre = '';
 
-        wordTest_ = wordTest{1};
-        for word = words_
+        genreTest_ = genreTest{1};
+        for genre = genres_
             
-            wordLike_ = word.likelihoodLog(wordTest_);
+            genreLike_ = genre.likelihoodLog(genreTest_);
         
              
             %Below comment should be uncommented to see the log-likelihoods
-            %fprintf('Word %s compared with %s, likelihood: %0.2f\n', char(order(cntTr)), char(word.nm), wordLike_);
+            %fprintf('Word %s compared with %s, likelihood: %0.2f\n', char(order(cntTr)), char(genre.nm), genreLike_);
             
             
             %Below we try finding the maximum likelihood value. Whichever
-            %training word has this value, its label is determined as the
-            %predicted word
-            if wordLike_ > likelihoodVal
-                likelihoodVal = wordLike_;
-                predictedWord = word.nm;
+            %training genre has this value, its label is determined as the
+            %predicted genre
+            if genreLike_ > likelihoodVal
+                likelihoodVal = genreLike_;
+                predictedGenre = genre.nm;
             end
         end
         
-        %If the label of both of the test word and the predicted are same,
+        %If the label of both of the test genre and the predicted are same,
         %it contributes to the success rate
-        if  strcmp(order(cntTr), predictedWord)
+        if  strcmp(order(cntTr), predictedGenre)
             cnterSucc = cnterSucc + 1;
-            fprintf('True - Test word: %s, Predicted word: %s\n', char(order(cntTr)), char(predictedWord));
+            fprintf('True - Test genre: %s, Predicted genre: %s\n', char(order(cntTr)), char(predictedGenre));
         else
-            fprintf('False - Test word: %s, Predicted word: %s\n', char(order(cntTr)), char(predictedWord));
+            fprintf('False - Test genre: %s, Predicted genre: %s\n', char(order(cntTr)), char(predictedGenre));
         end
         
         cntTr = cntTr + 1;
