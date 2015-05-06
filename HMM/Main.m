@@ -87,7 +87,7 @@ for direc = find(ind)
         
         %Below, some spectral values, mean and maximal tempo values are
         %taken into account
-        %Below is the value that can be between 1 and 13, specifying the
+        %Below is the value that can be between 1 and 12, specifying the
         %number of MFCC coefficients that are taken account of
         mfccCnt = 3;
         songFeats_ = songFeats_(1:11, [1:5, 6:6 + mfccCnt, 19:20]);
